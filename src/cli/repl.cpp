@@ -2,10 +2,12 @@
 #include <string>
 
 #include "cli/repl.hpp"
+#include "execute/execute.hpp"
 #include "parse/parser.hpp"
 
 void Repl::run(){
     Parser parser;
+    Executer executer;
 
     while(true){
         // prompt
@@ -13,19 +15,11 @@ void Repl::run(){
 
         // read
         std::string line;
-        std::getline(std::cin, line);
+        if(!std::getline(std::cin, line)) break;
         Command cmd = parser.parse(line);
 
         // execute
-        if(cmd.name.empty()) continue;
-        else if(cmd.name == "exit") break;
-        else if(cmd.name == "echo"){
-            for(auto it = cmd.args.begin(); it != cmd.args.end(); it++){
-                if(it == cmd.args.begin()) continue;
-                std::cout << (*it) << ' ';
-            }
-            std::cout << std::endl;
-        }
-        else std::cout << cmd.name << ": command not found\n";
+        ExecResult res = executer.execute(cmd);
+        if(res == ExecResult::Exit) break;
     }
 }

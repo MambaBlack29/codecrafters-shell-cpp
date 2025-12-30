@@ -18,7 +18,7 @@ std::vector<std::string> Parser::split(const std::string& s){
     return out;
 }
 
-Command Parser::parse(const std::string& line) const{
+Command Parser::parse(const std::string& line){
     Command cmd;
     cmd.args = split(line);
     if(!cmd.args.empty()) cmd.name = cmd.args.front();
