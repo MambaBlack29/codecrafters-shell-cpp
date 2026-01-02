@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "execute/execute.hpp"
-#include "parse/parser.hpp"
+#include "parse/parser.hpp" // including in cpp instead of hpp for Command
 
 Executer::Executer(){
     builtin_funcs["echo"] = [this](const Command& cmd){
@@ -16,7 +16,6 @@ Executer::Executer(){
 }
 
 ExecResult Executer::execute(const Command& cmd){
-    // check validity and execute
     auto it = builtin_funcs.find(cmd.name);
     if(it != builtin_funcs.end()){
         return it->second(cmd);

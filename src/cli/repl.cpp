@@ -18,7 +18,7 @@ void Repl::run(){
         if(!std::getline(std::cin, line)) break;
         Command cmd = parser.parse(line);
 
-        // execute
+        // execute = eval and print
         ExecResult res = executer.execute(cmd);
         if(res == ExecResult::Exit) break;
     }
