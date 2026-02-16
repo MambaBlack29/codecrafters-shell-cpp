@@ -1,5 +1,9 @@
 #include "parse/parser.hpp"
 
+#include <string>
+#include <sstream>
+#include <vector>
+
 std::vector<std::string> Parser::split(const std::string& s){
     std::vector<std::string> out;
     std::string cur;

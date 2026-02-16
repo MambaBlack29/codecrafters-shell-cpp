@@ -22,6 +22,8 @@ class Executer{
     ExecResult builtin_echo(const Command& cmd);
     ExecResult builtin_exit(const Command& cmd);
     ExecResult builtin_type(const Command& cmd);
+
+    std::string get_exec_path(const std::string& cmd);
 public:
     /**
      * @brief configures the 'builtin_funcs' map
@@ -33,7 +35,7 @@ public:
     /**
      * @brief Wrapper for execution of functions
      * 
-     * Executes builtin functino if 'cmd' found in 'builtin_funcs'
+     * Executes builtin function if 'cmd' found in 'builtin_funcs'
      * Prints error statement if not found
      * 
      * @param cmd Command type present in 'parser.hpp'
