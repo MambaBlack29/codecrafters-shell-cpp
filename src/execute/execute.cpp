@@ -30,7 +30,7 @@ Executer::Executer(){
 }
 
 std::string Executer::get_exec_path(const std::string& cmd_name){
-    const char* path = std::getenv("PATH");
+    const char* path = getenv("PATH");
     if(!path) { // no path variable
         return "";
     }
@@ -104,7 +104,21 @@ ExecResult Executer::exec_external(const std::string path, const Command& cmd){
 
 //----- BUILTINS -----
 ExecResult Executer::exec_cd(const Command& cmd){
-    fs::path cd_path(cmd.args[1]);
+    // set cd path
+    fs::path cd_path;
+    const char* home = getenv("HOME");
+    if(cmd.args.size() == 1){
+        cd_path /= home;
+    }
+    else if(cmd.args[1][0] == '~'){
+        size_t i = (cmd.args[1].size() == 1)? 1 : 2;
+        cd_path = cd_path / home / cmd.args[1].substr(i);
+    }
+    else{
+        cd_path /= cmd.args[1];
+    }
+
+    // change directory if path exists
     if(fs::exists(cd_path)){
         fs::current_path(cd_path);
     }
