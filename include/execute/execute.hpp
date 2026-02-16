@@ -21,6 +21,7 @@ class Executer{
 
     ExecResult exec_echo(const Command& cmd);
     ExecResult exec_exit(const Command& cmd);
+    ExecResult exec_pwd(const Command& cmd);
     ExecResult exec_type(const Command& cmd);
 
     ExecResult exec_external(const std::string path, const Command& cmd);

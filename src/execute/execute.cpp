@@ -16,9 +16,41 @@ Executer::Executer(){
     builtin_funcs["exit"] = [this](const Command& cmd){
         return exec_exit(cmd);
     };
+    builtin_funcs["pwd"] = [this](const Command& cmd){
+        return exec_pwd(cmd);
+    };
     builtin_funcs["type"] = [this](const Command& cmd){
         return exec_type(cmd);
     };
+}
+
+std::string Executer::get_exec_path(const std::string& cmd_name){
+    const char* path = std::getenv("PATH");
+    if(!path) { // no path variable
+        return "";
+    }
+
+    // select the path separator with respect to the operating system
+    #ifdef _WIN32
+    const char pathsep = ';';
+    #else
+    const char pathsep = ':';
+    #endif
+
+    namespace fs = std::filesystem;
+    std::stringstream ss(path);
+    std::string dir;
+
+    // for each path directory, check existance and owner executability
+    while(std::getline(ss, dir, pathsep)){
+        fs::path full_path = fs::path(dir) / cmd_name;
+        fs::perms perms = fs::status(full_path).permissions();
+        if(fs::exists(full_path) && fs::perms::none != (perms & fs::perms::owner_exec)){
+            return full_path;
+        }
+    }
+
+    return "";
 }
 
 ExecResult Executer::execute(const Command& cmd){
@@ -66,35 +98,7 @@ ExecResult Executer::exec_external(const std::string path, const Command& cmd){
     return ExecResult::Continue;
 }
 
-std::string Executer::get_exec_path(const std::string& cmd_name){
-    const char* path = std::getenv("PATH");
-    if(!path) { // no path variable
-        return "";
-    }
-
-    // select the path separator with respect to the operating system
-    #ifdef _WIN32
-    const char pathsep = ';';
-    #else
-    const char pathsep = ':';
-    #endif
-
-    namespace fs = std::filesystem;
-    std::stringstream ss(path);
-    std::string dir;
-
-    // for each path directory, check existance and owner executability
-    while(std::getline(ss, dir, pathsep)){
-        fs::path full_path = fs::path(dir) / cmd_name;
-        fs::perms perms = fs::status(full_path).permissions();
-        if(fs::exists(full_path) && fs::perms::none != (perms & fs::perms::owner_exec)){
-            return full_path;
-        }
-    }
-
-    return "";
-}
-
+//----- BUILTINS -----
 ExecResult Executer::exec_echo(const Command& cmd){
     for(size_t i = 1; i < cmd.args.size(); i++){
         std::cout << (cmd.args[i]) << ' ';
@@ -106,6 +110,12 @@ ExecResult Executer::exec_echo(const Command& cmd){
 
 ExecResult Executer::exec_exit(const Command& cmd){
     return ExecResult::Exit;
+}
+
+ExecResult Executer::exec_pwd(const Command& cmd){
+    std::string cur_path = std::filesystem::current_path();
+    std::cout << cur_path << std::endl;
+    return ExecResult::Continue;
 }
 
 ExecResult Executer::exec_type(const Command& cmd){
