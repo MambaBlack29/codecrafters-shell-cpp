@@ -46,11 +46,12 @@ std::string Executer::get_exec_path(const std::string& cmd_name){
     std::string dir;
 
     // for each path directory, check existance and owner executability
+    // file at full path must be regular file and not directory
     while(std::getline(ss, dir, pathsep)){
         fs::path full_path = fs::path(dir) / cmd_name;
         fs::perms perms = fs::status(full_path).permissions();
-        if(fs::exists(full_path) && fs::perms::none != (perms & fs::perms::owner_exec)){
-            return full_path;
+        if(fs::is_regular_file(full_path) && fs::perms::none != (perms & fs::perms::owner_exec)){
+            return full_path.string();
         }
     }
 
@@ -118,20 +119,27 @@ ExecResult Executer::exec_cd(const Command& cmd){
         cd_path /= cmd.args[1];
     }
 
-    // change directory if path exists
-    if(fs::exists(cd_path)){
-        fs::current_path(cd_path);
+    // change directory if path exists and is directory
+    if(!fs::exists(cd_path)){
+        std::cout << "cd: " << cd_path.string();
+        std::cout << ": No such file or directory" << std::endl;
+    }
+    else if(!fs::is_directory(cd_path)){
+        std::cout << "cd: not a directory: ";
+        std::cout << cd_path.string() << std::endl;
     }
     else{
-        std::cout << "cd: " << cd_path.c_str();
-        std::cout << ": No such file or directory" << std::endl;
+        fs::current_path(cd_path);
     }
     return ExecResult::Continue;
 }
 
 ExecResult Executer::exec_echo(const Command& cmd){
     for(size_t i = 1; i < cmd.args.size(); i++){
-        std::cout << (cmd.args[i]) << ' ';
+        std::cout << (cmd.args[i]);
+        if(i < cmd.args.size() - 1){
+            std::cout << ' ';
+        }
     }
     std::cout << std::endl;
 
