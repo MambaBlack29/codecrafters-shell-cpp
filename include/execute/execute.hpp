@@ -19,11 +19,16 @@ class Executer{
 
     // Implementations of all the builtin functions
 
-    ExecResult builtin_echo(const Command& cmd);
-    ExecResult builtin_exit(const Command& cmd);
-    ExecResult builtin_type(const Command& cmd);
+    ExecResult exec_echo(const Command& cmd);
+    ExecResult exec_exit(const Command& cmd);
+    ExecResult exec_type(const Command& cmd);
 
-    std::string get_exec_path(const std::string& cmd);
+    ExecResult exec_external(const std::string path, const Command& cmd);
+
+    /**
+     * @brief Returns path of 'cmd_name' if executable found in PATH
+     */
+    std::string get_exec_path(const std::string& cmd_name);
 public:
     /**
      * @brief configures the 'builtin_funcs' map
