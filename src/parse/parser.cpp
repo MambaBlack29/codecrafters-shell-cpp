@@ -7,15 +7,21 @@
 std::vector<std::string> Parser::split(const std::string& s){
     std::vector<std::string> out;
     std::string cur;
+    bool squote = false;
 
     for(char ch : s){
-        if(ch == ' '){
+        if(!squote && ch == ' '){
             if(!cur.empty()){
                 out.push_back(cur);
                 cur.clear();
             }
         }
-        else cur.push_back(ch);
+        else if(ch == '\''){
+            squote = !squote;
+        }
+        else {
+            cur.push_back(ch);
+        }
     }
 
     if(!cur.empty()) out.push_back(cur);
