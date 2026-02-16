@@ -34,10 +34,17 @@ std::string Executer::get_exec_path(const std::string& cmd){
         return "";
     }
 
+    #ifdef _WIN32
+    const char pathsep = ';';
+    #else
+    const char pathsep = ':';
+    #endif
+
     namespace fs = std::filesystem;
     std::stringstream ss(path);
     std::string dir;
-    while(std::getline(ss, dir, ':')){
+    
+    while(std::getline(ss, dir, pathsep)){
         fs::path full_path = fs::path(dir) / cmd;
         fs::perms perms = fs::status(full_path).permissions();
         if(fs::exists(full_path) && fs::perms::none != (perms & fs::perms::owner_exec)){
