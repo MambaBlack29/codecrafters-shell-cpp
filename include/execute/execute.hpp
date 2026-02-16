@@ -19,6 +19,7 @@ class Executer{
 
     // Implementations of all the builtin functions
 
+    ExecResult exec_cd(const Command& cmd);
     ExecResult exec_echo(const Command& cmd);
     ExecResult exec_exit(const Command& cmd);
     ExecResult exec_pwd(const Command& cmd);

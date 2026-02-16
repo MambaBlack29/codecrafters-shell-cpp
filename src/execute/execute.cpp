@@ -9,7 +9,12 @@
 #include <unistd.h>
 #include <unordered_map>
 
+namespace fs = std::filesystem;
+
 Executer::Executer(){
+    builtin_funcs["cd"] = [this](const Command& cmd){
+        return exec_cd(cmd);
+    };
     builtin_funcs["echo"] = [this](const Command& cmd){
         return exec_echo(cmd);
     };
@@ -37,7 +42,6 @@ std::string Executer::get_exec_path(const std::string& cmd_name){
     const char pathsep = ':';
     #endif
 
-    namespace fs = std::filesystem;
     std::stringstream ss(path);
     std::string dir;
 
@@ -99,6 +103,18 @@ ExecResult Executer::exec_external(const std::string path, const Command& cmd){
 }
 
 //----- BUILTINS -----
+ExecResult Executer::exec_cd(const Command& cmd){
+    fs::path cd_path(cmd.args[1]);
+    if(fs::exists(cd_path)){
+        fs::current_path(cd_path);
+    }
+    else{
+        std::cout << "cd: " << cd_path.c_str();
+        std::cout << ": No such file or directory" << std::endl;
+    }
+    return ExecResult::Continue;
+}
+
 ExecResult Executer::exec_echo(const Command& cmd){
     for(size_t i = 1; i < cmd.args.size(); i++){
         std::cout << (cmd.args[i]) << ' ';
@@ -113,7 +129,7 @@ ExecResult Executer::exec_exit(const Command& cmd){
 }
 
 ExecResult Executer::exec_pwd(const Command& cmd){
-    std::string cur_path = std::filesystem::current_path();
+    std::string cur_path = fs::current_path();
     std::cout << cur_path << std::endl;
     return ExecResult::Continue;
 }
