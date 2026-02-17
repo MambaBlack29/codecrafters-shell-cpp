@@ -28,9 +28,9 @@ class Executer{
     ExecResult exec_external(const std::string path, const Command& cmd);
 
     /**
-     * @brief Returns path of 'cmd_name' if executable found in PATH
+     * @brief Returns absolute path of 'cmd_name' if executable found in PATH
      */
-    std::string get_exec_path(const std::string& cmd_name);
+    std::string get_exec_path(const std::string& cmd_name, const bool type);
 public:
     /**
      * @brief configures the 'builtin_funcs' map

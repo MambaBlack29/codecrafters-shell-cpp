@@ -29,32 +29,44 @@ Executer::Executer(){
     };
 }
 
-std::string Executer::get_exec_path(const std::string& cmd_name){
+std::string Executer::get_exec_path(const std::string& cmd_name, const bool type){
+    // lambda to check if given file is executable
+    auto executable = [](const fs::path& p) -> bool{
+        if(fs::is_regular_file(p)){
+            fs::perms perms = fs::status(p).permissions();
+            return fs::perms::none != (perms & fs::perms::owner_exec);
+        }
+        return false;
+    };
+
+    // check in path if variable set
     const char* path = getenv("PATH");
-    if(!path) { // no path variable
-        return "";
-    }
-
-    // select the path separator with respect to the operating system
-    #ifdef _WIN32
-    const char pathsep = ';';
-    #else
-    const char pathsep = ':';
-    #endif
-
-    std::stringstream ss(path);
-    std::string dir;
-
-    // for each path directory, check existance and owner executability
-    // file at full path must be regular file and not directory
-    while(std::getline(ss, dir, pathsep)){
-        fs::path full_path = fs::path(dir) / cmd_name;
-        fs::perms perms = fs::status(full_path).permissions();
-        if(fs::is_regular_file(full_path) && fs::perms::none != (perms & fs::perms::owner_exec)){
-            return full_path.string();
+    if(path) {
+        // select the path separator with respect to the operating system
+        #ifdef _WIN32
+        const char pathsep = ';';
+        #else
+        const char pathsep = ':';
+        #endif
+    
+        std::stringstream ss(path);
+        std::string dir;
+    
+        // for each path directory, check existance and owner executability
+        // file at full path must be regular file and not directory
+        while(std::getline(ss, dir, pathsep)){
+            fs::path full_path = (fs::path(dir) / cmd_name).lexically_normal();
+            if(executable(full_path)) return full_path.string();
         }
     }
 
+    // check outside path if not called by type builtin
+    if(!type){
+        fs::path full_path = fs::absolute(cmd_name).lexically_normal();
+        if(executable(full_path)) return full_path.string();
+    }
+
+    // return empty path if not found anywhere
     return "";
 }
 
@@ -64,7 +76,7 @@ ExecResult Executer::execute(const Command& cmd){
         return it->second(cmd);
     }
     else{
-        std::string exec_path = get_exec_path(cmd.name);
+        std::string exec_path = get_exec_path(cmd.name, false);
         if(!exec_path.empty()){
             return exec_external(exec_path, cmd);
         }
@@ -164,7 +176,7 @@ ExecResult Executer::exec_type(const Command& cmd){
             std::cout << target << " is a shell builtin" << std::endl;
         }
         else{
-            std::string exec_path = get_exec_path(target);
+            std::string exec_path = get_exec_path(target, true);
             if(!exec_path.empty()){
                 std::cout << target << " is " << exec_path << std::endl;
             }
