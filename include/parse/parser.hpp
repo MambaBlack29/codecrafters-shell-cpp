@@ -7,7 +7,8 @@ enum class ParseState{
     Normal,
     InQuote,
     InDoubleQuote,
-    EscapedOut
+    EscapedOut,
+    EscapedInDoubleQuote
 };
 
 class Command{

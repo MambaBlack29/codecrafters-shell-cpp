@@ -31,12 +31,19 @@ std::vector<std::string> Parser::split(const std::string& s){
         
         case ParseState::InDoubleQuote:
             if(ch == '\"') state = ParseState::Normal;
+            else if(ch == '\\') state = ParseState::EscapedInDoubleQuote;
             else cur.push_back(ch);
             break;
         
         case ParseState::EscapedOut:
             cur.push_back(ch);
             state = ParseState::Normal;
+            break;
+
+        case ParseState::EscapedInDoubleQuote:
+            if(ch == '\"' || ch == '\\') cur.push_back(ch);
+            else cur.append({'\\', ch});
+            state = ParseState::InDoubleQuote;
             break;
 
         default:
