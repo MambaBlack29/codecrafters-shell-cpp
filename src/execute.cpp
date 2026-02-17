@@ -1,5 +1,5 @@
-#include "execute/execute.hpp"
-#include "parse/parser.hpp" // including in cpp instead of hpp for Command
+#include "execute.hpp"
+#include "parser.hpp" // including in cpp instead of hpp for Command
 
 #include <iostream>
 #include <filesystem>

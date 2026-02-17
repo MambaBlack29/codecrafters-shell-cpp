@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "cli/repl.hpp"
+#include "repl.hpp"
 
 int main() {
     // Flush after every std::cout / std:cerr

@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "cli/repl.hpp"
-#include "execute/execute.hpp"
-#include "parse/parser.hpp"
+#include "repl.hpp"
+#include "execute.hpp"
+#include "parser.hpp"
 
 void Repl::run(){
     Parser parser;
