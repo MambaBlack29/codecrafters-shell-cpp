@@ -71,6 +71,10 @@ std::string Executer::get_exec_path(const std::string& cmd_name, const bool type
 }
 
 ExecResult Executer::execute(const Command& cmd){
+    // if empty command or parsing error continue directly
+    if(cmd.name.empty()) return ExecResult::Continue;
+
+    // search for command in builtin, PATH and directly in order
     auto it = builtin_funcs.find(cmd.name);
     if(it != builtin_funcs.end()){
         return it->second(cmd);
@@ -125,7 +129,7 @@ ExecResult Executer::exec_cd(const Command& cmd){
     }
     else if(cmd.args[1][0] == '~'){
         size_t i = (cmd.args[1].size() == 1)? 1 : 2;
-        cd_path = cd_path / home / cmd.args[1].substr(i);
+        cd_path /= fs::path(home) / cmd.args[1].substr(i);
     }
     else{
         cd_path /= cmd.args[1];
@@ -169,9 +173,11 @@ ExecResult Executer::exec_pwd(const Command& cmd){
 }
 
 ExecResult Executer::exec_type(const Command& cmd){
+    // for all arguments determine type iteratively
     for(size_t i = 1; i < cmd.args.size(); i++){
         const std::string target = cmd.args[i];
 
+        // search for command in builtin and PATH in order
         if(builtin_funcs.find(target) != builtin_funcs.end()){
             std::cout << target << " is a shell builtin" << std::endl;
         }
