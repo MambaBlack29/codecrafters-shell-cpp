@@ -69,7 +69,7 @@ ExecResult Executer::execute(const Command& cmd){
             return exec_external(exec_path, cmd);
         }
     }
-    std::cout << cmd.name << ": command not found" << std::endl;
+    std::cerr << cmd.name << ": command not found" << std::endl;
     return ExecResult::Continue;
 }
 
@@ -90,11 +90,11 @@ ExecResult Executer::exec_external(const std::string path, const Command& cmd){
         execv(path.data(), args.data());
 
         // in case of execv not executing (improper command), kill child
-        perror("execv failed");
+        std::cerr << "execv failed" << std::endl;
         exit(EXIT_FAILURE);
     }
     else if(pid < 0){
-        perror("fork failed");
+        std::cerr << "fork failed"  << std::endl;
     }
     else {
         wait(NULL);
@@ -121,12 +121,12 @@ ExecResult Executer::exec_cd(const Command& cmd){
 
     // change directory if path exists and is directory
     if(!fs::exists(cd_path)){
-        std::cout << "cd: " << cd_path.string();
-        std::cout << ": No such file or directory" << std::endl;
+        std::cerr << "cd: " << cd_path.string();
+        std::cerr << ": No such file or directory" << std::endl;
     }
     else if(!fs::is_directory(cd_path)){
-        std::cout << "cd: not a directory: ";
-        std::cout << cd_path.string() << std::endl;
+        std::cerr << "cd: not a directory: ";
+        std::cerr << cd_path.string() << std::endl;
     }
     else{
         fs::current_path(cd_path);
@@ -169,7 +169,7 @@ ExecResult Executer::exec_type(const Command& cmd){
                 std::cout << target << " is " << exec_path << std::endl;
             }
             else{
-                std::cout << (target) << ": not found" << std::endl;
+                std::cerr << (target) << ": not found" << std::endl;
             }
         }
     }

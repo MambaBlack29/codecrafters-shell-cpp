@@ -3,6 +3,13 @@
 #include <string>
 #include <vector>
 
+enum class ParseState{
+    Normal,
+    InQuote,
+    InDoubleQuote,
+    EscapedOut
+};
+
 class Command{
 public:
     std::string name;

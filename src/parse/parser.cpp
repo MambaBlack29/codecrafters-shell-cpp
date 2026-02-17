@@ -1,43 +1,53 @@
 #include "parse/parser.hpp"
 
 #include <string>
-#include <sstream>
+#include <iostream>
 #include <vector>
 
 std::vector<std::string> Parser::split(const std::string& s){
     std::vector<std::string> out;
     std::string cur;
-    bool quote = false;
-    bool dquote = false;
-    bool back = false;
+    ParseState state = ParseState::Normal;
 
     for(char ch : s){
-        // handle space
-        if(!back && !dquote && !quote && ch == ' '){
-            if(!cur.empty()){
-                out.push_back(cur);
-                cur.clear();
+        switch (state){
+        case ParseState::Normal:
+            if(isspace(ch)){
+                if(!cur.empty()){
+                    out.push_back(cur);
+                    cur.clear();
+                }
             }
-        }
-        // handle quotes
-        else if(!back && !dquote && ch == '\''){
-            quote = !quote;
-        }
-        else if(!back && !quote && ch == '\"'){
-            dquote = !dquote;
-        }
-        // handle back slash outside quotes
-        else if(!back && !dquote && !quote && ch == '\\'){
-            back = !back;
-        }
-        else {
+            else if(ch == '\'') state = ParseState::InQuote;
+            else if(ch == '\"') state = ParseState::InDoubleQuote;
+            else if(ch == '\\') state = ParseState::EscapedOut;
+            else cur.push_back(ch);
+            break;
+        
+        case ParseState::InQuote:
+            if(ch == '\'') state = ParseState::Normal;
+            else cur.push_back(ch);
+            break;
+        
+        case ParseState::InDoubleQuote:
+            if(ch == '\"') state = ParseState::Normal;
+            else cur.push_back(ch);
+            break;
+        
+        case ParseState::EscapedOut:
             cur.push_back(ch);
-            if(back){
-                back = !back;
-            }
+            state = ParseState::Normal;
+            break;
+
+        default:
+            break;
         }
     }
 
+    if(state != ParseState::Normal){
+        std::cerr << "Incomplete command input" << std::endl;
+        return std::vector<std::string>();
+    }
     if(!cur.empty()) out.push_back(cur);
     return out;
 }
