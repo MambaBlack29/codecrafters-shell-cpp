@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types.hpp"
+
 #include <string>
 #include <vector>
 
@@ -12,15 +14,6 @@ enum class ParseState{
     InDoubleQuote,
     EscapedOut,
     EscapedInDoubleQuote
-};
-
-/**
- * @brief Parsed command with name and arguments
- */
-class Command{
-public:
-    std::string name;
-    std::vector<std::string> args;
 };
 
 /**

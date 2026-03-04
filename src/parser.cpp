@@ -9,6 +9,8 @@ std::vector<std::string> Parser::split(const std::string& s){
     std::string cur;
     ParseState state = ParseState::Normal;
 
+    // state machine for each character parsing - Mealy model
+    // inside each state, decide what to do with next character
     for(char ch : s){
         switch (state){
         case ParseState::Normal:
